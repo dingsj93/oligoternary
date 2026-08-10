@@ -1,0 +1,128 @@
+version: 1
+project: oligoternary-mirna-example
+output_dir: ../../runs/mirna-example/workflow
+
+stages:
+  - name: prepared-input
+    adapter:
+      type: existing-artifact
+      artifact: structures/prepared_complex.pdb
+
+  - name: e2-accessibility-screen
+    depends_on: [prepared-input]
+    adapter:
+      type: command
+      command:
+        - "{python}"
+        - -m
+        - oligoternary.cli.e2_accessibility
+        - --input-pdb
+        - structures/prepared_complex.pdb
+        - --reference-pdb
+        - structures/crl4crbn_e2_reference.pdb.gz
+        - --output-json
+        - ../../runs/mirna-example/e2-accessibility-screen/screen.json
+        - --poi-chain
+        - A
+        - --e3-chain
+        - C
+        - --reference-e3-chain
+        - V
+        - --e2-chain
+        - E
+        - --e2-residue
+        - "85"
+        - --e2-atom
+        - SG
+        - --minimum-alignment-residues
+        - "30"
+        - --maximum-alignment-rmsd
+        - "3"
+        - --min-lysine-distance
+        - "0"
+        - --max-lysine-distance
+        - "25"
+        - --contact-cutoff
+        - "2"
+        - --severe-cutoff
+        - "1.5"
+        - --minimum-separation
+        - "3"
+        - --maximum-contacts
+        - "5"
+        - "{stage-result}"
+      artifact: ../../runs/mirna-example/e2-accessibility-screen/screen.json
+      result_summary: ../../runs/mirna-example/e2-accessibility-screen/stage_result.json
+
+  - name: linker-refinement
+    depends_on: [e2-accessibility-screen]
+    adapter:
+      type: linker-refinement
+      input: structures/prepared_complex.pdb
+      output_dir: ../../runs/mirna-example/modeling
+      result_summary: ../../runs/mirna-example/modeling/refinement_result.json
+      chemistry:
+        linker_prefix: example_linker
+        linker_smiles: "[*]CCCCCCOC(=O)NCCCCC(CO)COP([*])(=O)O"
+        e3_ligand_smiles: "C1CC(=O)NC(=O)C1N2C(=O)C3=C(C2=O)C(=CC=C3)N[*]"
+        linker_to_warhead_atom: P1
+        linker_to_e3_ligand_atom: C1
+      chains:
+        poi: A
+        warhead: B
+        e3: C
+        linker: L
+        e3_ligand: X
+      anchors:
+        warhead: "B:24:O3'"
+        e3_ligand: "X:1:N3"
+      protocol:
+        relax_cycles: 2
+        minimize_steps: 5000
+        minimize_tolerance: 0.001
+        random_seed: 42
+        endpoint_candidates: 6
+        conformers_per_endpoint: 8
+        minimum_attachment_angle_degrees: 0
+        conformer_ranking: attachment-first
+
+  - name: structural-metrics
+    depends_on: [linker-refinement]
+    adapter:
+      type: command
+      command:
+        - "{python}"
+        - -m
+        - oligoternary.cli.metrics
+        - --input-folder
+        - ../../runs/mirna-example/modeling/models
+        - --output-csv
+        - ../../runs/mirna-example/modeling/metrics.csv
+        - --poi-chain
+        - A
+        - --warhead-chain
+        - B
+        - --e3-chain
+        - C
+        - --protac-chains
+        - B
+        - L
+        - X
+        - --params-files
+        - ../../runs/mirna-example/modeling/params/LNK.params
+        - ../../runs/mirna-example/modeling/params/E3L.params
+        - --seed
+        - "42"
+        - --linker-chain
+        - L
+        - --linker-to-warhead-atom
+        - P1
+        - --linker-to-e3l-atom
+        - C1
+        - --warhead-anchor-label
+        - "B:24:O3'"
+        - --e3l-anchor-label
+        - "X:1:N3"
+        - "{stage-result}"
+      artifact: ../../runs/mirna-example/modeling/metrics.csv
+      result_summary: ../../runs/mirna-example/modeling/metrics_result.json

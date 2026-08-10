@@ -1,0 +1,8 @@
+include LICENSE
+include MANIFEST.in
+include README.md
+include THIRD_PARTY_NOTICES.md
+include environment.yml
+include pyproject.toml
+recursive-include docs *.md *.svg
+recursive-include examples *.csv *.gz *.in *.json *.md *.pdb *.xyz *.yaml

@@ -1,0 +1,32 @@
+version: 1
+project: oligoternary-mirna-md
+engine: pmemd.cuda
+topology: amber/system.prmtop.gz
+coordinates: amber/system.inpcrd.gz
+output_dir: ../../runs/mirna-md
+
+stages:
+  - name: minimize-solvent
+    input: amber/minimize-solvent.in
+    reference: initial
+
+  - name: minimize-system
+    input: amber/minimize-system.in
+
+  - name: heat
+    input: amber/heat.in
+    reference: minimize-system
+    trajectory: true
+
+  - name: equilibrate-restrained
+    input: amber/equilibrate-restrained.in
+    reference: minimize-system
+    trajectory: true
+
+  - name: equilibrate
+    input: amber/equilibrate.in
+    trajectory: true
+
+  - name: production
+    input: amber/production.in
+    trajectory: true

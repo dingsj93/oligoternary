@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel>=0.43"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oligoternary"
+version = "0.1.0"
+description = "Configuration-driven 3D modeling and Amber MD workflows for oligonucleotide PROTAC ternary complexes"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+# Shared, package-manager-resolvable Python libraries used by scientific modules.
+# This is intentionally not a complete scientific runtime: PyRosetta,
+# Rosetta scripts, and external executables require separate installation.
+scientific-python = [
+  "biopython>=1.80",
+  "loguru>=0.7",
+  "pandas>=2.0",
+  "rdkit>=2023.9",
+  "rich>=13",
+  "scipy>=1.10",
+  "tqdm>=4.65",
+]
+
+[project.scripts]
+oligoternary = "oligoternary.cli.main:main"
+oligoternary-preflight = "oligoternary.cli.preflight:main"
+oligoternary-refine = "oligoternary.cli.refine:main"
+oligoternary-e2-accessibility-screen = "oligoternary.cli.e2_accessibility:main"
+oligoternary-metrics = "oligoternary.cli.metrics:main"
+oligoternary-simulate = "oligoternary.cli.simulate:main"
+oligoternary-charge = "oligoternary.cli.charge:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["oligoternary*"]

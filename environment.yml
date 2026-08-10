@@ -1,0 +1,25 @@
+# Portable environment for OligoTernary.
+#
+# The bundled modeling example was validated with PyRosetta
+# 2025.22+release.957f89124e. PyRosetta and the Rosetta
+# ``molfile_to_params.py`` utility are intentionally absent: their licensed
+# distributions must not be mirrored by this project.
+# Install them separately using an authorized distribution.
+name: oligoternary
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - setuptools>=77.0.3
+  - python-build=1.2
+  - wheel=0.43
+  - pyyaml=6.0
+  - numpy=2.2
+  - scipy=1.15
+  - pandas=2.2
+  - biopython=1.83
+  - rdkit=2024.09
+  - loguru=0.7
+  - rich=14.0
+  - tqdm=4.67

@@ -1,0 +1,32 @@
+version: 1
+project: oligoternary-mirna-resp
+atom_map: charges/atom_map.csv
+constraints: charges/constraints.json
+output_dir: ../../runs/mirna-resp
+
+conformers:
+  - name: conf-01
+    geometry: charges/conf-01.xyz
+    grid: charges/conf-01-grid.dat.gz
+    esp: charges/conf-01-esp.dat.gz
+    weight: 1.0
+
+  - name: conf-02
+    geometry: charges/conf-02.xyz
+    grid: charges/conf-02-grid.dat.gz
+    esp: charges/conf-02-esp.dat.gz
+    weight: 1.0
+
+  - name: conf-03
+    geometry: charges/conf-03.xyz
+    grid: charges/conf-03-grid.dat.gz
+    esp: charges/conf-03-esp.dat.gz
+    weight: 1.0
+
+resp:
+  stage1_weight: 0.0005
+  stage2_weight: 0.001
+  hyperbolic_b: 0.1
+  hydrogens_unrestrained: true
+  tolerance: 1.0e-8
+  maximum_iterations: 200

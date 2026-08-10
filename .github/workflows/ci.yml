@@ -1,0 +1,132 @@
+name: public-smoke
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject tracked run outputs
+        run: test -z "$(git ls-files 'runs/**')"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install public package
+        run: python -m pip install -e '.[scientific-python]' build
+      - name: Validate the bundled miRNA example
+        run: |
+          oligoternary validate examples/mirna/modeling.yaml
+          oligoternary run examples/mirna/modeling.yaml --dry-run
+          oligoternary-charge validate examples/mirna/charges.yaml
+          oligoternary-charge fit examples/mirna/charges.yaml
+          oligoternary-simulate validate examples/mirna/simulation.yaml
+          oligoternary-simulate run examples/mirna/simulation.yaml --dry-run
+          oligoternary-e2-accessibility-screen \
+            --input-pdb examples/mirna/structures/prepared_complex.pdb \
+            --reference-pdb examples/mirna/structures/crl4crbn_e2_reference.pdb.gz \
+            --output-json /tmp/e2-accessibility-screen.json \
+            --poi-chain A --e3-chain C --reference-e3-chain V \
+            --e2-chain E --e2-residue 85 \
+            --minimum-alignment-residues 30 --maximum-alignment-rmsd 3
+          gzip -t examples/mirna/structures/crl4crbn_e2_reference.pdb.gz
+          gzip -t examples/mirna/charges/*.dat.gz
+          gzip -t examples/mirna/amber/system.prmtop.gz
+          gzip -t examples/mirna/amber/system.inpcrd.gz
+      - name: Check publication example invariants
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+
+          from oligoternary.simulation import (
+              build_stage_commands,
+              load_simulation_config,
+              validate_simulation,
+          )
+
+          e2 = json.loads(Path("/tmp/e2-accessibility-screen.json").read_text())
+          assert e2["passed"] is True
+          assert e2["alignment"]["residue_count"] == 375
+          assert abs(e2["alignment"]["rmsd_angstrom"] - 2.138) < 0.001
+          assert e2["lysine_screen"]["in_range_count"] == 3
+          assert e2["lysine_screen"]["closest_lysine"]["residue_number"] == 99
+          assert abs(e2["lysine_screen"]["closest_lysine"]["distance_angstrom"] - 17.09) < 0.001
+          assert abs(e2["steric_screen"]["minimum_poi_e2_distance_angstrom"] - 7.92) < 0.001
+
+          report = json.loads(Path("runs/mirna-resp/fit_report.json").read_text())
+          assert report["atom_count"] == 141
+          assert report["conformer_count"] == 3
+          assert abs(report["total_charge_e"] + 2.0) < 1.0e-8
+          expected_errors = {
+              "conf-01": 0.0490835688557,
+              "conf-02": 0.0405553129143,
+              "conf-03": 0.0458429654972,
+          }
+          for name, expected in expected_errors.items():
+              assert abs(report["relative_rms_error"][name] - expected) < 1.0e-8
+          assert report["protocol"]["stage1_weight"] == 0.0005
+          with Path("runs/mirna-resp/charges.csv").open(newline="") as handle:
+              charges = {
+                  row["model_label"]: float(row["stage2_RESP_e"])
+                  for row in csv.DictReader(handle)
+              }
+          assert abs(charges["L:LNK:1:C8"] - 0.0560851716) < 1.0e-8
+          assert abs(charges["X:E3L:1:H6"] - 0.0935408983) < 1.0e-8
+
+          simulation = load_simulation_config("examples/mirna/simulation.yaml")
+          assert validate_simulation(simulation) == 151815
+          assert [stage.name for stage in build_stage_commands(simulation)] == [
+              "minimize-solvent",
+              "minimize-system",
+              "heat",
+              "equilibrate-restrained",
+              "equilibrate",
+              "production",
+          ]
+          PY
+      - name: Compile source
+        run: python -m compileall -q src
+      - name: Build source and wheel distributions
+        run: python -m build --sdist --wheel --outdir /tmp/dist
+      - name: Check source distribution carries public material
+        run: |
+          tar -tzf /tmp/dist/*.tar.gz > /tmp/oligoternary-sdist-files.txt
+          grep -F '/docs/MODELING_TUTORIAL.md' /tmp/oligoternary-sdist-files.txt
+          grep -F '/docs/SIMULATION_TUTORIAL.md' /tmp/oligoternary-sdist-files.txt
+          grep -F '/docs/modeling_workflow.svg' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/modeling.yaml' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/charges.yaml' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/charges/atom_map.csv' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/charges/constraints.json' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/charges/conf-01.xyz' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/charges/conf-01-grid.dat.gz' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/charges/conf-01-esp.dat.gz' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/structures/prepared_complex.pdb' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/structures/crl4crbn_e2_reference.pdb.gz' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/simulation.yaml' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/minimize-solvent.in' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/minimize-system.in' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/heat.in' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/equilibrate-restrained.in' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/equilibrate.in' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/production.in' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/system.prmtop.gz' /tmp/oligoternary-sdist-files.txt
+          grep -F '/examples/mirna/amber/system.inpcrd.gz' /tmp/oligoternary-sdist-files.txt
+      - name: Install built wheel and check public command discovery
+        run: |
+          python -m venv /tmp/oligoternary-wheel-smoke
+          /tmp/oligoternary-wheel-smoke/bin/python -m pip install /tmp/dist/*.whl
+          for command in oligoternary oligoternary-preflight oligoternary-e2-accessibility-screen oligoternary-refine oligoternary-metrics oligoternary-charge oligoternary-simulate; do
+            /tmp/oligoternary-wheel-smoke/bin/$command --help
+          done

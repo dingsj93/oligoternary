@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="210" viewBox="0 0 1200 210" role="img" aria-labelledby="title description">
+  <title id="title">OligoTernary calculation workflow</title>
+  <desc id="description">A docked complex and CRL reference pass through E3 alignment, E2 active-site accessibility screening, linker construction, refinement, structural analysis, and PDB output.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eef2ff"/>
+    </linearGradient>
+    <linearGradient id="output" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-25%" width="130%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      text { font-family: Inter, Arial, sans-serif; text-anchor: middle; }
+      .step { font-size: 11px; font-weight: 700; letter-spacing: .7px; }
+      .name { font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .tool { font-size: 12px; fill: #64748b; }
+      .arrow { font-size: 24px; font-weight: 700; fill: #64748b; }
+      .out-name { font-size: 17px; font-weight: 700; fill: #fff; }
+      .out-tool { font-size: 12px; fill: #cffafe; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="210" rx="22" fill="url(#background)"/>
+
+  <g filter="url(#shadow)">
+    <g>
+      <rect x="18" y="43" width="148" height="124" rx="16" fill="#fff" stroke="#bfdbfe" stroke-width="2"/>
+      <text x="92" y="72" class="step" fill="#1d4ed8">INPUT</text>
+      <text x="92" y="108" class="name">Docked complex</text>
+      <text x="92" y="136" class="tool">PDB + CRL reference</text>
+    </g>
+    <g>
+      <rect x="187" y="43" width="148" height="124" rx="16" fill="#fff" stroke="#ddd6fe" stroke-width="2"/>
+      <text x="261" y="72" class="step" fill="#6d28d9">ALIGN</text>
+      <text x="261" y="108" class="name">E3 registration</text>
+      <text x="261" y="136" class="tool">CRL · E2 placement</text>
+    </g>
+    <g>
+      <rect x="356" y="43" width="148" height="124" rx="16" fill="#fff" stroke="#fecdd3" stroke-width="2"/>
+      <text x="430" y="72" class="step" fill="#be123c">SCREEN</text>
+      <text x="430" y="108" class="name">E2 accessibility</text>
+      <text x="430" y="136" class="tool">Active-site geometry</text>
+    </g>
+    <g>
+      <rect x="525" y="43" width="148" height="124" rx="16" fill="#fff" stroke="#bae6fd" stroke-width="2"/>
+      <text x="599" y="72" class="step" fill="#0369a1">BUILD</text>
+      <text x="599" y="108" class="name">Linker</text>
+      <text x="599" y="136" class="tool">RDKit · Rosetta</text>
+    </g>
+    <g>
+      <rect x="694" y="43" width="148" height="124" rx="16" fill="#fff" stroke="#a5f3fc" stroke-width="2"/>
+      <text x="768" y="72" class="step" fill="#0e7490">REFINE</text>
+      <text x="768" y="108" class="name">Covalent model</text>
+      <text x="768" y="136" class="tool">PyRosetta</text>
+    </g>
+    <g>
+      <rect x="863" y="43" width="148" height="124" rx="16" fill="#fff" stroke="#bbf7d0" stroke-width="2"/>
+      <text x="937" y="72" class="step" fill="#15803d">ANALYZE</text>
+      <text x="937" y="108" class="name">Structure</text>
+      <text x="937" y="136" class="tool">Energy · geometry</text>
+    </g>
+    <g>
+      <rect x="1032" y="43" width="150" height="124" rx="16" fill="url(#output)"/>
+      <text x="1107" y="72" class="step" fill="#a5f3fc">OUTPUT</text>
+      <text x="1107" y="108" class="out-name">Refined model</text>
+      <text x="1107" y="136" class="out-tool">PDB</text>
+    </g>
+  </g>
+
+  <g class="arrow">
+    <text x="177" y="113">→</text>
+    <text x="346" y="113">→</text>
+    <text x="515" y="113">→</text>
+    <text x="684" y="113">→</text>
+    <text x="853" y="113">→</text>
+    <text x="1022" y="113">→</text>
+  </g>
+</svg>

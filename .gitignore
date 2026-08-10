@@ -1,0 +1,59 @@
+# Python and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local environments and package builds
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+
+# Workflow-generated directories at the repository root
+/results/
+/outputs/
+/runs/
+/logs/
+/scratch/
+/tmp/
+
+# Logs, tables, and machine-local state
+*.log
+*.out
+*.csv
+!examples/mirna/charges/atom_map.csv
+*.tsv
+*.sqlite*
+
+# Generated scientific data and binary arrays
+*.pdb
+!examples/mirna/structures/prepared_complex.pdb
+*.xtc
+*.trr
+*.dcd
+*.mdcrd
+*.nc
+*.netcdf
+*.h5
+*.hdf5
+*.prmtop
+*.inpcrd
+*.rst
+*.rst7
+*.npy
+*.npz
+*.pkl
+*.pickle
+
+# Archives and editor/OS state
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+.DS_Store
+.*.swp
