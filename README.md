@@ -36,8 +36,6 @@ example is included.
 
 Rosetta and PyRosetta must be installed separately from an authorized
 [RosettaCommons distribution](https://rosettacommons.org/software/download/).
-They are not included in this repository and remain subject to the
-RosettaCommons license.
 
 The complete example has been tested with Python 3.10 and PyRosetta
 2025.22+release.957f89124e. Confirm that PyRosetta imports in the active
@@ -105,9 +103,6 @@ oligoternary-simulate run examples/mirna/simulation.yaml --dry-run
 oligoternary-simulate run examples/mirna/simulation.yaml
 ```
 
-The final command includes a 50 ns production stage. See the
-[Amber simulation tutorial](docs/SIMULATION_TUTORIAL.md) before starting it.
-
 ## Input requirements
 
 A custom run starts from one docked or assembled PDB containing four distinct
@@ -128,8 +123,7 @@ The E2-accessibility stage additionally requires a CRL/E2 reference complex
 for the recruited E3 system. Its configuration identifies the matching E3
 chains, the E2 chain and active-site cysteine, and the steric and Lys–Cys
 distance thresholds. The E3 alignment residue count and RMSD limits must also
-be appropriate for the selected reference. OligoTernary does not dock the four
-input components from separate structures.
+be appropriate for the selected reference.
 
 A new charge fit requires atom mapping, constraints, conformer geometries, and
 matching QM ESP grids. The included `charges.yaml` demonstrates the accepted
