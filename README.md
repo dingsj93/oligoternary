@@ -183,14 +183,6 @@ oligoternary/
 - [Modeling configuration](docs/MODELING_CONFIG.md)
 - [Third-party software notices](THIRD_PARTY_NOTICES.md)
 
-## Scientific scope
-
-The E2-accessibility result is a structural geometry screen. It reports
-target–E2 steric compatibility and target Lys Nζ distances to the configured
-E2 active site; it does not infer downstream biochemical activity or
-degradation efficiency. RESP partial charges are a molecular-mechanics model,
-not experimentally measured atomic charges.
-
 ## License
 
 OligoTernary is released under the [MIT License](LICENSE). Rosetta, PyRosetta,
